@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title></title>
+    <script>
+    var mobileOS; // will either be iOS, Android or unknown
+    var mobileOSver; // this is a string, use Number(mobileOSver) to convert
+    var timeout;
+    var action; // what action is required. Currently Update Feature added
+    var gclid;
+
+    var enterpriseApps = {
+        "intelligentHub": {
+            "iOS": {
+                "storepath": "https://apps.apple.com/us/app/intelligent-hub/id338761996",
+            },
+            "Android": {
+                "storepath": "https://play.google.com/store/apps/details?id=com.airwatch.androidagent&hl=en_IN&gl=US",
+            }
+        }
+    }
+
+    function getOS() {
+        var ua = navigator.userAgent;
+        var uaindex;
+
+        // determine OS
+        if (ua.match(/iPad/i) || ua.match(/iPhone/i)) {
+            mobileOS = 'iOS';
+            uaindex = ua.indexOf('OS ');
+        } else if (ua.match(/Android/i)) {
+            mobileOS = 'Android';
+            uaindex = ua.indexOf('Android ');
+        } else {
+            mobileOS = 'unknown';
+        }
+
+        // determine version
+        if (mobileOS === 'iOS' && uaindex > -1) {
+            mobileOSver = ua.substr(uaindex + 3, 3).replace('_', '.');
+        } else if (mobileOS === 'Android' && uaindex > -1) {
+            mobileOSver = ua.substr(uaindex + 8, 3);
+        } else {
+            mobileOSver = 'unknown';
+        }
+    }
+
+    function getParameterByName(name) {
+    	console.log(name)
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(decodeURIComponent(location.search));
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    function redirectPage(location) {
+        var path = '';
+        path = enterpriseApps[app][mobileOS][location];
+        window.location.replace(path);;
+    }
+
+    window.onload = function() {
+        getOS();
+        app = 'intelligentHub';
+        if (action == 'update' || mobileOS == 'unknown') {
+            mobileOS = mobileOS == 'unknown' ? "Android" : mobileOS;
+            redirectPage("storepath")
+        } else {
+            timeout = setTimeout(function() {
+                redirectPage("storepath");
+            }, 3000);
+        }
+    }
+
+    window.onblur = function() {
+
+        clearTimeout(timeout);
+        timeout = null;
+    }
+
+    document.addEventListener("visibilitychange", function() {
+
+        clearTimeout(timeout);
+        timeout = null;
+
+    })
+    </script>
+</head>
+
+<body></body>
+</html>
